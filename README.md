@@ -4,7 +4,7 @@
 
 (1)
    可以单张压缩,也可以list多张压缩
-   ArrayList<Photo> photos = new ArrayList<>();
+   ArrayList<Photo> photos = new ArrayList<>();/r
    Photo photo = new Photo(file.getPath());
    photo.setOriginalPath(path);
    photos.add(photo);
