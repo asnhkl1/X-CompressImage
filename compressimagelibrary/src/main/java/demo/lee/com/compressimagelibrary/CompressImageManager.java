@@ -54,6 +54,7 @@ public class CompressImageManager implements CompressImage{
                 if (file.length() < (long)this.config.getMaxSize()) {
                     this.continueCompress(image, true);
                 } else {
+                    //核心压缩方法
                     this.compressImageUtil.compress(image.getOriginalPath(), new CompressResultListener() {
                         @Override
                         public void onCompressSuccess(String imgPath) {
@@ -73,6 +74,12 @@ public class CompressImageManager implements CompressImage{
         }
     }
 
+    /**
+     * 判断是否为空,是否可以开始继续压缩
+     * @param image
+     * @param preSuccess
+     * @param message
+     */
     private void continueCompress(Photo image, boolean preSuccess, String... message) {
         image.setCompressed(preSuccess);
         int index = this.images.indexOf(image);

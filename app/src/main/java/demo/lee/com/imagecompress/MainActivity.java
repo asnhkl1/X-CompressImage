@@ -1,15 +1,26 @@
 package demo.lee.com.imagecompress;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.bumptech.glide.Glide;
+import com.hjq.permissions.OnPermission;
+import com.hjq.permissions.XXPermissions;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.tools.ToastUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import demo.lee.com.compressimagelibrary.CompressConfig;
 import demo.lee.com.compressimagelibrary.CompressImage;
@@ -17,13 +28,57 @@ import demo.lee.com.compressimagelibrary.CompressImageManager;
 import demo.lee.com.compressimagelibrary.Photo;
 
 public class MainActivity extends AppCompatActivity {
+    ImageView image1,image2;
+    ArrayList<String> list = new ArrayList<>();
+
     private CompressConfig compressConfig; // 压缩配置
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        image1=findViewById(R.id.image1);
+        image2=findViewById(R.id.image2);
+        XXPermissions.with(MainActivity.this)
+                // 可设置被拒绝后继续申请，直到用户授权或者永久拒绝
+                //.constantRequest()
+                // 支持请求6.0悬浮窗权限8.0请求安装权限
+                //.permission(Permission.SYSTEM_ALERT_WINDOW, Permission.REQUEST_INSTALL_PACKAGES)
+                // 不指定权限则自动获取清单中的危险权限
+//                .permission(Permission.Group.STORAGE)
+                .request(new OnPermission() {
+
+                    @Override
+                    public void hasPermission(List<String> granted, boolean all) {
+                        ToastUtils.s(MainActivity.this, "获取权限成功");
+                    }
+
+                    @Override
+                    public void noPermission(List<String> denied, boolean quick) {
+                        ToastUtils.s(MainActivity.this, "获取权限成功，部分权限未正常授予");
+                    }
+                });
+
+
+    }
+
+    public void openAlarm(View view) {
+        list.clear();
+        Glide.with(MainActivity.this).load("").into(image1);
+        Glide.with(MainActivity.this).load("").into(image2);
+
+        PictureSelector.create(MainActivity.this)
+                .openGallery(PictureMimeType.ofImage())
+                .selectionMode(PictureConfig.SINGLE)
+                .loadImageEngine(GlideEngine.createGlideEngine()) // 请参考Demo GlideEngine.java
+                .theme(R.style.picture_WeChat_style)
+                .isWeChatStyle(true)
+                .forResult(10099);
+    }
+
+    public void compress(View view) {
         ArrayList<Photo> photos = new ArrayList<>();
-        String path =Environment.getExternalStorageDirectory()+"/bc4.jpg";
+//        String path =Environment.getExternalStorageDirectory()+"/bc4.jpg";
+        String path =list.get(0);
         File file = new File(path);
         if(file.exists()){
             Photo photo = new Photo(file.getPath());
@@ -44,9 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onCompressSuccess(ArrayList<Photo> var1) {
                     Log.i("imageCompress","success");
-                    Bitmap bitmap = BitmapFactory.decodeFile(path);
-                    ImageView viewById = findViewById(R.id.image);
-                    viewById.setImageBitmap(bitmap);
+                    Glide.with(MainActivity.this).load(path).into(image2);
                 }
 
                 @Override
@@ -55,6 +108,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             }).compress();
         }
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == -1) {
+            List<LocalMedia> selectList = PictureSelector.obtainMultipleResult(data);
+            for (int i = 0; i < selectList.size(); i++) {
+                list.add(selectList.get(i).getPath());
+            }
+            Glide.with(MainActivity.this).load(list.get(0)).into(image1);
+        }
     }
 }

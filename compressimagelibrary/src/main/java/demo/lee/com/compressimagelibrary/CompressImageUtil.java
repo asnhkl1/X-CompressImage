@@ -22,6 +22,7 @@ public class CompressImageUtil {
     }
 
     public void compress(String imgPath, CompressResultListener listener) {
+        //像素压缩
         if (this.config.isEnablePixelCompress()) {
             try {
                 this.compressImageByPixel(imgPath, listener);
@@ -30,6 +31,7 @@ public class CompressImageUtil {
                 var4.printStackTrace();
             }
         } else {
+            //质量压缩
             this.compressImageByQuality(BitmapFactory.decodeFile(imgPath), imgPath, listener);
         }
 
@@ -81,9 +83,11 @@ public class CompressImageUtil {
             this.sendMsg(false, (String)null, "要压缩的文件不存在", listener);
         } else {
             BitmapFactory.Options newOpts = new BitmapFactory.Options();
+            //先获取图片,仅包含宽高等描述信息
             newOpts.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(imgPath, newOpts);
             newOpts.inJustDecodeBounds = false;
+            //获取宽高信息
             int width = newOpts.outWidth;
             int height = newOpts.outHeight;
             float maxSize = (float)this.config.getMaxPixel();
@@ -95,15 +99,16 @@ public class CompressImageUtil {
                 be = (int)((float)newOpts.outHeight / maxSize);
                 ++be;
             }
-
+            //根据设置的像素长宽来取采样率
             if (width <= this.config.getUnCompressNormalPixel() || height <= this.config.getUnCompressNormalPixel()) {
                 be = 2;
                 if (width <= this.config.getUnCompressMinPixel() || height <= this.config.getUnCompressMinPixel()) {
                     be = 1;
                 }
             }
-
+            //设置采样率
             newOpts.inSampleSize = be;
+            //设置图片颜色模式
             newOpts.inPreferredConfig = Bitmap.Config.ARGB_8888;
             newOpts.inPurgeable = true;
             newOpts.inInputShareable = true;
@@ -115,7 +120,6 @@ public class CompressImageUtil {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(thumbnailFile));
                 listener.onCompressSuccess(thumbnailFile.getPath());
             }
-
         }
     }
 
