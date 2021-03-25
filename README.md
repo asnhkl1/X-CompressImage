@@ -1,7 +1,12 @@
 1.可以自定义大小和像素来进行压缩
 
-2.要集成进自己项目,可以直接把compressimagelibrarycopy作为module引入项目
+2.要集成进自己项目,可以
+        dependencies {
+            implementation 'com.github.asnhkl1:ImageCompress:1.0.0'
+        }
+也可以直接把compressimagelibrarycopy作为module引入项目
 在需要压缩的地方进行配置
+
 
 (1)可以单张压缩,也可以list多张压缩
    
