@@ -84,6 +84,8 @@ compressConfig链式调用即可配置,如果需要覆盖原图,可以把setCach
                 
             }).compress();
             
+            
+            简书： https://www.jianshu.com/p/d3f63d52310e
                     
                     
                     
