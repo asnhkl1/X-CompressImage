@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,16 +30,20 @@ import demo.lee.com.compressimagelibrary.CompressImageManager;
 import demo.lee.com.compressimagelibrary.Photo;
 
 public class MainActivity extends AppCompatActivity {
-    ImageView image1,image2;
+    ImageView image1, image2;
+    TextView text1, text2;
     ArrayList<String> list = new ArrayList<>();
 
     private CompressConfig compressConfig; // 压缩配置
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        image1=findViewById(R.id.image1);
-        image2=findViewById(R.id.image2);
+        image1 = findViewById(R.id.image1);
+        image2 = findViewById(R.id.image2);
+        text1 = findViewById(R.id.text1);
+        text2 = findViewById(R.id.text2);
         XXPermissions.with(MainActivity.this)
                 // 可设置被拒绝后继续申请，直到用户授权或者永久拒绝
                 //.constantRequest()
@@ -78,9 +84,13 @@ public class MainActivity extends AppCompatActivity {
     public void compress(View view) {
         ArrayList<Photo> photos = new ArrayList<>();
 //        String path =Environment.getExternalStorageDirectory()+"/bc4.jpg";
-        String path =list.get(0);
+        if (list.size() == 0) {
+            Toast.makeText(this, "请选择需要压缩的照片", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String path = list.get(0);
         File file = new File(path);
-        if(file.exists()){
+        if (file.exists()) {
             Photo photo = new Photo(file.getPath());
             photo.setOriginalPath(path);
             photos.add(photo);
@@ -95,16 +105,25 @@ public class MainActivity extends AppCompatActivity {
                     .setCacheDir(path) // 压缩后缓存图片路径，默认值：Constants.COMPRESS_CACHE
                     .setShowCompressDialog(true) // 是否显示压缩进度条，默认值：false
                     .create();
-            CompressImageManager.build(this,compressConfig, photos, new CompressImage.CompressListener() {
+            CompressImageManager.build(this, compressConfig, photos, new CompressImage.CompressListener() {
                 @Override
                 public void onCompressSuccess(ArrayList<Photo> var1) {
-                    Log.i("imageCompress","success");
+                    String path = var1.get(0).getCompressPath();
+                    if (path == null) {
+                        path = var1.get(0).getOriginalPath();
+                    }
+                    Log.i("imageCompress", "success" + path);
+
                     Glide.with(MainActivity.this).load(path).into(image2);
+
+                    File file = new File(path);
+
+                    text2.setText(path + "，大小为：" + file.length() / 1000 + "K");
                 }
 
                 @Override
                 public void onCompressFailed(ArrayList<Photo> var1, String var2) {
-                    Log.e("imageCompress","false",null);
+                    Log.e("imageCompress", "false", null);
                 }
             }).compress();
         }
@@ -118,6 +137,10 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < selectList.size(); i++) {
                 list.add(selectList.get(i).getPath());
             }
+            File file = new File(list.get(0));
+
+            text1.setText(list.get(0) + "，大小为：" + file.length() / 1000 + "K");
+
             Glide.with(MainActivity.this).load(list.get(0)).into(image1);
         }
     }
