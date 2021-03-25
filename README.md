@@ -1,21 +1,34 @@
 1.可以自定义大小和像素来进行压缩
 
-2.要集成进自己项目,可以直接把compressimagelibrarycopy作为module引入项目
+2.要集成进自己项目,可以
+
+        dependencies {
+        
+            implementation 'com.github.asnhkl1:ImageCompress:1.0.0'
+        }
+        
+也可以直接把compressimagelibrarycopy作为module引入项目
 在需要压缩的地方进行配置
 
+
 (1)可以单张压缩,也可以list多张压缩
+
    
-   ArrayList<Photo> photos = new ArrayList<>();
+           ArrayList<Photo> photos = new ArrayList<>();
+
+           Photo photo = new Photo(file.getPath());
+
+           photo.setOriginalPath(path);
+
+           photos.add(photo);
    
-   Photo photo = new Photo(file.getPath());
-   
-   photo.setOriginalPath(path);
-   
-   photos.add(photo);
    
   
 compressConfig链式调用即可配置,如果需要覆盖原图,可以把setCacheDir(path)传进去
-   compressConfig = CompressConfig.builder()
+
+
+
+           CompressConfig compressConfig = CompressConfig.builder()
    
                     .setUnCompressMinPixel(1000) // 最小像素不压缩，默认值：1000
                     
@@ -37,8 +50,10 @@ compressConfig链式调用即可配置,如果需要覆盖原图,可以把setCach
                     
                     .create();
                     
- (2)CompressImageManager.build(this,compressConfig, photos, new CompressImage.CompressListener() {
+ (2)
  
+        CompressImageManager.build(this,compressConfig, photos, new CompressImage.CompressListener() {
+        
                 @Override
                 
                 public void onCompressSuccess(ArrayList<Photo> var1) {
