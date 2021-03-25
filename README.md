@@ -2,9 +2,18 @@
 
 2.要集成进自己项目,可以
 
+    Add it in your root build.gradle at the end of repositories:
+    
+        allprojects {
+            repositories {
+                ...
+                maven { url 'https://jitpack.io' }
+            }
+        }
+    Step 2. Add the dependency
+    
         dependencies {
-        
-            implementation 'com.github.asnhkl1:ImageCompress:1.0.0'
+                implementation 'com.github.asnhkl1:X-CompressImage:1.0.1'
         }
         
 也可以直接把compressimagelibrarycopy作为module引入项目
